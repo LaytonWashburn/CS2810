@@ -24,7 +24,6 @@
 
 
 .data
-
 	# Set the iteration message
 	inputMessage:
 		.asciiz "Please enter a number: "
@@ -32,13 +31,15 @@
 	# Newline character for formatting
 	newline:
 		.asciiz "\n"
-		
+	
 	# Newline character for formatting
-	test:
-		.asciiz "Hits the base case"
+	errorMessage:
+		.asciiz "Please Input a Non-negative Number"
 		
 
 .text
+
+setUp:
 	# Set iteration variable to 0
 	li $t0, 0
 	li $t2, 0 # Base case i = 0
@@ -56,10 +57,15 @@
 	li $v0, 5 
 	syscall 
 	
-	# Check if it's non-negative
-	
+ 
 	# Set user input to $t1
 	move $t1, $v0
+	
+	# Check if it's non-negative
+	blt $t1, 0, negative_end
+		j fib
+	negative_end:
+		j setUp
 	
 	# Loop through the number of iterations
 	fib:
@@ -71,9 +77,13 @@
 			beq  $t0, $t3, base_one
 			
 			# Body of the Fibonacci	
-				add $t6, $t5, $zero
-				add $t5, $t5, $t4
-				move $t4, $t6
+			
+				# Handle values
+				add $t6, $t5, $zero # Store old value of $t5 in temp register
+				add $t5, $t5, $t4 # Calculate current fibonacci value 
+				move $t4, $t6 # Store new value of $t4
+				
+				# Print out current value of $t5
 				li $v0, 1 
 				la $a0, ($t5)
 				syscall
@@ -91,10 +101,12 @@
 
 	# Base Case for 0
 	base_zero:
+		# Print value of 0
 		li $v0, 1
 		la $a0, ($t4)
 		syscall
 				
+		# Print newline
 		li $v0, 4
 		la $a0, newline
 		syscall 
@@ -103,11 +115,12 @@
 		
 	# Base Case for 1
 	base_one:
-		
+		# Print value of 1
 		li $v0, 1
 		la $a0, ($t5)
 		syscall
 				
+		# Print newline
 		li $v0, 4
 		la $a0, newline
 		syscall 
@@ -118,5 +131,3 @@
 	exit:
 		li $v0, 10 # Syscode for program termination
 		syscall 
-	
-	
