@@ -43,6 +43,9 @@
 	li $t0, 0
 	li $t2, 0 # Base case i = 0
 	li $t3, 1 # Base case i = 1
+	li $t4, 0 # Fibonacci prev
+	li $t5, 1 # Fibonacci curr
+	li $t6, 1 # Fibonacci temp
 	
 	# Print the input message
 	li $v0, 4
@@ -68,8 +71,11 @@
 			beq  $t0, $t3, base_one
 			
 			# Body of the Fibonacci	
+				add $t6, $t5, $zero
+				add $t5, $t5, $t4
+				move $t4, $t6
 				li $v0, 1 
-				la $a0, ($t0)
+				la $a0, ($t5)
 				syscall
 		
 				# Print newline for formatting
@@ -86,7 +92,7 @@
 	# Base Case for 0
 	base_zero:
 		li $v0, 1
-		la $a0, ($t2)
+		la $a0, ($t4)
 		syscall
 				
 		li $v0, 4
@@ -97,8 +103,9 @@
 		
 	# Base Case for 1
 	base_one:
+		
 		li $v0, 1
-		la $a0, ($t3)
+		la $a0, ($t5)
 		syscall
 				
 		li $v0, 4
