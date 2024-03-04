@@ -30,14 +30,14 @@
 main:
 	li $t0, 0 #  i = 0 for iteration counter
 	
-	la $a1, array1
-	lw $a2, size1
+	la $a0, array1
+	lw $a1, size1
 	jal print_array
 	
 
 	
-	la $a1, array2
-	lw $a2, size2
+	la $a0, array2
+	lw $a1, size2
 	jal print_array
 	
 	j exit
@@ -45,20 +45,23 @@ main:
 	# Loop through the array and print each element separated by a space and a newline at the end
 	print_array: 
 	
-		beq $a2, $t0, end_print_array # If the size of the array is equal to the iterator, jump to end_print_array label
+		beq $a1, $t0, end_print_array # If the size of the array is equal to the iterator, jump to end_print_array label
 		
-		lw $t2, ($a1)
+		# Load address into temp register
+		la $t1, ($a0)
 		
+		# Print array[i]
 		li, $v0, 1
-		la $a0, ($t2)
+		lw $a0, ($t1)
 		syscall
 		
+		# Print Space
 		li, $v0, 4
 		la $a0, space
 		syscall
 		
 		# Increment the address
-		la $a1, 4($a1)
+		la $a0, 4($t1)
 		
 		add, $t0, $t0, 1 # i++
 		
@@ -77,8 +80,10 @@ main:
 		# Jump back to the return address
 		jr $ra
 
+
+	# Terminate the program
 	exit:
-		li $v0, 10		# Syscode for program termination
+		li $v0, 10		
 		syscall
 		
 		
