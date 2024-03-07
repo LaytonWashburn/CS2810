@@ -134,24 +134,59 @@
 		
 		main_loop:
 		
-			beq $s0, $s1, main_func_end # If iterator and size are the same
+			beq $s0, $s1, exit # If iterator and size are the same
 			
-			sw $s1, 0($s2) # Store value at array[i]
+			### Base Case == 0 ###
+			li $t1, 0
+			beq $s1, $t1 base0
+
+			### Base Case == 1 ###
+			li $t1, 1
+			beq $s1, $t1 base1
+			
 			# Add one to the iteration variable
 			add $s1, $s1, 1
 			
+			# Load filler value
+			li $t2, 2
+			sw $t2, 0($s2) # Store value at array[i]
+
+			# Load size and array and call print_array
 			move $a1, $s1
 			la $a0, ($s3)
 			jal print_array
 			
-
-			
+			# Move the array forward
 			addi $s2, $s2, 4
-			
 			j main_loop
 			
-		main_func_end:
-			j exit
+
+		base0:
+			# Add one to the iteration variable
+			addi $s1, $s1, 1
+			
+			li $a1, 1
+			sw $t1, 0($s2) # Store value at array[i]
+			la $a0, ($s3)
+			jal print_array
+			
+			# Move the array forward
+			addi $s2, $s2, 4
+			j main_loop
+				
+		base1:
+			# Add one to the iteration variable
+			addi $s1, $s1, 1
+			
+			move $a1, $s1
+			sw $t1, 0($s2) # Store value at array[i]
+			la $a0, ($s3)
+			jal print_array
+			
+			# Move the array forward
+			addi $s2, $s2, 4
+			j main_loop
+			
 
 	# Terminate the program
 	exit:
