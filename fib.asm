@@ -38,7 +38,8 @@
 	
 	# Make empty array for 
 	# This is in bytes
-	main_array: .space 32
+	.align 4
+	arrayN: .space 32 # .align 4
 	
 	
 .text
@@ -121,35 +122,35 @@
 		
 		# Move user input to a register input
 		# User input is n, which denotes 'n' numbers
-		move $t0, $v0
+		move $s0, $v0 # $s0 is user input
 		
-		li, $t2, 0 # Setting increment to 0
+		# $s1 is the incrementor
+		li, $s1, 0 # Setting increment to 0
 		
-		# Make a place to store increment value on stack
-		addi $sp, $sp, -4
-		
-		# Store on the stack
-		sw $t2, 0($sp)
-		
+		# Load array address in
+		la $s2, arrayN # Will be used to put the current iterator in
+		la $s3, arrayN # Holding base array address
+
 		
 		main_loop:
-			beq $sp, $t0, main_func_end
+		
+			beq $s0, $s1, main_func_end # If iterator and size are the same
 			
-			
-			la $a0, main_array
-			
-			la $a1, $t0
-			
-			
-			
-			
+			sw $s1, 0($s2) # Store value at array[i]
 			# Add one to the iteration variable
-			add $t2, $t2, 1
+			add $s1, $s1, 1
+			
+			move $a1, $s1
+			la $a0, ($s3)
+			jal print_array
+			
+
+			
+			addi $s2, $s2, 4
+			
 			j main_loop
 			
 		main_func_end:
-			mul $t1, $t0, -4
-			add $sp, $sp, $t1 
 			j exit
 
 	# Terminate the program
