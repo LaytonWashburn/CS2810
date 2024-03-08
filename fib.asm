@@ -134,59 +134,89 @@
 		
 		main_loop:
 		
-			beq $s0, $s1, exit # If iterator and size are the same
+			beq $s0, $s1, main_func_end # If iterator and size are the same
 			
-			### Base Case == 0 ###
-			li $t1, 0
-			beq $s1, $t1 base0
-
-			### Base Case == 1 ###
-			li $t1, 1
-			beq $s1, $t1 base1
+			move $a0, $s1
+			jal fib # Call fib(n)
+			
+			sw $v0, 0($s2) # Store value at array[i] 
 			
 			# Add one to the iteration variable
 			add $s1, $s1, 1
 			
-			# Load filler value
-			li $t2, 2
-			sw $t2, 0($s2) # Store value at array[i]
-
-			# Load size and array and call print_array
 			move $a1, $s1
 			la $a0, ($s3)
 			jal print_array
 			
-			# Move the array forward
 			addi $s2, $s2, 4
-			j main_loop
 			
-
+			j main_loop
+		
+		fib:
+			### Base Case == 0 ###
+			li $t1, 0
+			beq $a0, $t1 base0
+			
+			### Base Case == 1 ###
+			li $t1, 1
+			beq $a0, $t1 base1
+			
+			# Recursive case: Calculate factorial for n > 1
+			# Before the recursive call, save the current state to the stack
+			# Save the return address ($ra) and current value of n ($a0) on the stack
+			addi $sp, $sp, -16 # Allocate space on the stack
+			sw $ra, 0($sp) # Store return address
+			sw $a0, 4($sp) # Store iteration
+			
+			# Prepare for the recursive call by decrementing $a0 for factorial(n - 1)
+			# Make the recursive call to calculate factorial(n - 1)
+			## Other fin(n-1)
+			 lw $t0, 4($sp)
+			 addi $a0, $t0, -1
+			 jal fib
+			#addi $a0, $s1, -1 # fib(n-1)
+			#jal fib # Call fib(n-1)
+			
+			# Store result of fib(n-1) on the stack
+			sw $v0, 8($sp)
+			
+			#lw $t0, 4($sp) # Load iteration from the stack
+			#addi $a0, $t0, -2 # Subtract 2 to get fib(n-2)
+			# Other fib(n-2)
+			 lw $t0, 4($sp)
+			 addi $a0, $t0, -2
+			 jal fib
+			#addi $a0, $s1, -2 # fib(n-2)
+			#jal fib # Call fib(n-2)
+			
+			# Store result of fib(n-2) on the stack
+			sw $v0, 12($sp) # Call fib(n-2)
+			
+			# After returning from the recursive call, restore the saved state
+			# Restore $a0 and $r0 from the stack
+			# Calculate the factorial for the current n by multiplying n with the result from the recursive call
+			# Use the instruction `mul $dest, $src1, $src2` to multiply two numbers
+			lw $ra, 0($sp) # Load return address
+			la $a0, 4($sp) # Load iteration number
+			lw $t0, 8($sp) # Load fin(n-1)
+			lw $t1, 12($sp)# Load fib(n-2)
+			add $v0, $t0, $t1 # fib(n-1) + fib(n-2) 
+	
+			# Finally, return the result and remember to restore the stack pointer
+			addi $sp, $sp, 16
+			
+			jr $ra # Return to call
+			
 		base0:
-			# Add one to the iteration variable
-			addi $s1, $s1, 1
-			
-			li $a1, 1
-			sw $t1, 0($s2) # Store value at array[i]
-			la $a0, ($s3)
-			jal print_array
-			
-			# Move the array forward
-			addi $s2, $s2, 4
-			j main_loop
+			li $v0, 0
+			jr $ra # return to call
 				
 		base1:
-			# Add one to the iteration variable
-			addi $s1, $s1, 1
+			li $v0, 1
+			jr $ra # return to call
 			
-			move $a1, $s1
-			sw $t1, 0($s2) # Store value at array[i]
-			la $a0, ($s3)
-			jal print_array
-			
-			# Move the array forward
-			addi $s2, $s2, 4
-			j main_loop
-			
+		main_func_end:
+			j exit
 
 	# Terminate the program
 	exit:
