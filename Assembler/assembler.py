@@ -112,6 +112,7 @@ def encode_program(lines:list, label_table:list, data_table:dict):
     line_num = 0 # Create line number iterator
     for line in lines: # Loop through the program lines
         instruction = encode_instruction(line_num, line, label_table, data_table) # Encode the instructions into binary
+        print(instruction)
         line_num += 1 # Increment the number
         binary_encoded_instructions.append(instruction)
    
@@ -122,7 +123,6 @@ def encode_instruction(line_num:int, instruction:str, label_table:list, data_tab
     instructions_split = instruction.split(" ")
     instructions_split = [value for value in instructions_split if value != '']
     instructions_split = [value.replace(',', '') for value in instructions_split]
-    print(instructions_split)
     instruction = instructions_split[0]
 
     if instruction == 'add':
@@ -156,21 +156,41 @@ def encode_instruction(line_num:int, instruction:str, label_table:list, data_tab
         return '0000 ' + register_to_binary(r2) + ' ' + register_to_binary(r3) + ' ' + register_to_binary(r1) + ' 111'
 
     elif instruction == 'addi':
-        r2 = instructions_split[2]#.replace(',', '')
-        r1 = instructions_split[1]#.replace(',', '')
+        r2 = instructions_split[2]
+        r1 = instructions_split[1]
         immediate = int(instructions_split[3])
         return '0101 ' + register_to_binary(r2) + ' ' + register_to_binary(r1) + ' ' + dec_to_bin(immediate, 6)
+    
     elif instruction == 'beq':
-        r2 = instructions_split[2]#.replace(',', '')
-        r1 = instructions_split[1]#.replace(',', '')
+        r2 = instructions_split[2]
+        r1 = instructions_split[1]
         immediate = instructions_split[3]
         return '0011 ' + register_to_binary(r2) + ' ' + register_to_binary(r1) + ' ' + dec_to_bin(line_num, 6)
+    
     elif instruction == 'bne':
-        pass
+        r2 = instructions_split[2]
+        r1 = instructions_split[1]
+        immediate = instructions_split[3]
+        return '0110 ' + register_to_binary(r2) + ' ' + register_to_binary(r1) + ' ' + dec_to_bin(line_num, 6)
+
     elif instruction == 'lw':
-        pass
+        r1 = instructions_split[1]
+        r2 = instructions_split[2]
+        if '(' in r2:
+            res = '0001 ' + "Hello World"
+        else:
+            res = '0001 ' + '000 ' + register_to_binary(r1) + ' ' + dec_to_bin(data_table[r2], 6)
+        return res
+    
     elif instruction == 'sw':
-        pass
+        r1 = instructions_split[1]
+        r2 = instructions_split[2]
+        if '(' in r2:
+            res = '0010 ' + "Hello World"
+        else:
+            res = '0010 ' + '000 ' + register_to_binary(r1) + ' ' + dec_to_bin(data_table[r2], 6)
+        return res
+
     elif instruction == 'j':
         label = instructions_split[1]
         return'0100 ' + dec_to_bin(label_table[label], 12)
@@ -180,7 +200,6 @@ def encode_instruction(line_num:int, instruction:str, label_table:list, data_tab
 
     elif instruction == 'jal':
         label = instructions_split[1]
-        print(f'Here is the jump label: {label}')
         return'1000 ' + dec_to_bin(label_table[label], 12)
 
     else:
