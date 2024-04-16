@@ -2,7 +2,7 @@ import copy
 
 def main():
     # Defining the assembly file to read from
-    filename = "task4-1.asm"
+    filename = "task4-4.asm"
 
     # Read all lines from the assembly file, and store them in a list
     with open(filename, "r") as infile:
@@ -120,26 +120,49 @@ def encode_program(lines:list, label_table:list, data_table:dict):
 
 def encode_instruction(line_num:int, instruction:str, label_table:list, data_table:list):
     instructions_split = instruction.split(" ")
+    instructions_split = [value for value in instructions_split if value != '']
+    instructions_split = [value.replace(',', '') for value in instructions_split]
+    print(instructions_split)
     instruction = instructions_split[0]
 
     if instruction == 'add':
-        pass
+        r1 = instructions_split[1]
+        r2 = instructions_split[2]
+        r3 = instructions_split[3]
+        return '0000 ' + register_to_binary(r2) + ' ' + register_to_binary(r3) + ' ' + register_to_binary(r1) + ' 010'
+
     elif instruction == 'sub':
-        pass
+        r1 = instructions_split[1]
+        r2 = instructions_split[2]
+        r3 = instructions_split[3]
+        return '0000 ' + register_to_binary(r2) + ' ' + register_to_binary(r3) + ' ' + register_to_binary(r1) + ' 110'
+
     elif instruction == 'and':
-        pass
+        r1 = instructions_split[1]
+        r2 = instructions_split[2]
+        r3 = instructions_split[3]
+        return '0000 ' + register_to_binary(r2) + ' ' + register_to_binary(r3) + ' ' + register_to_binary(r1) + ' 001'
+
     elif instruction  == 'or':
-        pass
+        r1 = instructions_split[1]
+        r2 = instructions_split[2]
+        r3 = instructions_split[3]
+        return '0000 ' + register_to_binary(r2) + ' ' + register_to_binary(r3) + ' ' + register_to_binary(r1) + ' 110'
+
     elif instruction == 'slt':
-        pass
+        r1 = instructions_split[1]
+        r2 = instructions_split[2]
+        r3 = instructions_split[3]
+        return '0000 ' + register_to_binary(r2) + ' ' + register_to_binary(r3) + ' ' + register_to_binary(r1) + ' 111'
+
     elif instruction == 'addi':
-        r2 = instructions_split[2].replace(',', '')
-        r1 = instructions_split[1].replace(',', '')
+        r2 = instructions_split[2]#.replace(',', '')
+        r1 = instructions_split[1]#.replace(',', '')
         immediate = int(instructions_split[3])
         return '0101 ' + register_to_binary(r2) + ' ' + register_to_binary(r1) + ' ' + dec_to_bin(immediate, 6)
     elif instruction == 'beq':
-        r2 = instructions_split[2].replace(',', '')
-        r1 = instructions_split[1].replace(',', '')
+        r2 = instructions_split[2]#.replace(',', '')
+        r1 = instructions_split[1]#.replace(',', '')
         immediate = instructions_split[3]
         return '0011 ' + register_to_binary(r2) + ' ' + register_to_binary(r1) + ' ' + dec_to_bin(line_num, 6)
     elif instruction == 'bne':
@@ -152,9 +175,14 @@ def encode_instruction(line_num:int, instruction:str, label_table:list, data_tab
         label = instructions_split[1]
         return'0100 ' + dec_to_bin(label_table[label], 12)
     elif instruction == 'jr':
-        pass
+        r1 = instructions_split[1]
+        return '0111 ' + register_to_binary(r1) + ' 000 000 000'
+
     elif instruction == 'jal':
-        pass
+        label = instructions_split[1]
+        print(f'Here is the jump label: {label}')
+        return'1000 ' + dec_to_bin(label_table[label], 12)
+
     else:
         return "Hello World"
 
@@ -179,3 +207,4 @@ def dec_to_bin(num:int, extended):
 
 
 main()
+
